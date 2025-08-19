@@ -20,5 +20,15 @@ class UserSeeder extends Seeder
                 'is_active' => true,
             ]
         );
+
+        $userId = DB::table('users')->where('email', 'admin@digivault.dev')->value('id');
+        $roleId = DB::table('roles')->where('name', 'admin')->value('id');
+
+        if ($userId && $roleId) {
+            DB::table('user_roles')->updateOrInsert(
+                ['user_id' => $userId, 'role_id' => $roleId],
+                []
+            );
+        }
     }
 }
