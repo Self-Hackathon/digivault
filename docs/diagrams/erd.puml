@@ -5,7 +5,7 @@ entity users {
   * id : bigint <<PK>>
   --
   email : varchar(191) <<UNIQUE>>
-  password_hash : text
+  password : text
   is_active : boolean
   created_at : timestamptz
 }
