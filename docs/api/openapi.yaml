@@ -20,6 +20,7 @@ tags:
   - name: Delivery
   - name: Webhooks
   - name: Admin
+  - name: Auth
 
 paths:
   /health:
@@ -35,7 +36,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Health"
 
-    /auth/login:
+  /auth/login:
     post:
       tags: [Auth]
       summary: Login with email & password
