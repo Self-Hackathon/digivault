@@ -1,0 +1,25 @@
+@startuml
+title Webhook handler (adapter + dedup by provider,event_id)
+
+participant "Gateway (Stripe/Xendit/Paypal)" as GW
+participant "API /webhooks/payment" as API
+database "DB" as DB
+
+GW -> API: POST /webhooks/payment (+headers signature, provider hint)
+API -> API: Detect provider & verify signature
+API -> API: Parse -> DomainPaymentEvent {provider, event_id, type, orderId, ...}
+
+API -> DB: INSERT INTO webhook_events(provider,event_id,...) ON CONFLICT DO NOTHING
+DB --> API: inserted? (true/false)
+
+alt first time
+  API -> DB: BEGIN; SELECT ... FOR UPDATE (order)
+  API -> DB: UPDATE order -> paid (if not paid)
+  API -> DB: UPSERT license / set flags (issued_at, receipt_sent_at)
+  API -> DB: COMMIT
+else duplicate
+  API -> API: Skip processing (idempotent)
+end
+
+API --> GW: 200 {received: true, deduped: [true|false]}
+@enduml

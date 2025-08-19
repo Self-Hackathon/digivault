@@ -1,0 +1,114 @@
+@startuml
+title Digivault ERD (MVP, single-seller)
+
+entity users {
+  * id : bigint <<PK>>
+  --
+  email : varchar(191) <<UNIQUE>>
+  password_hash : text
+  is_active : boolean
+  created_at : timestamptz
+}
+
+entity roles {
+  * id : bigint <<PK>>
+  --
+  name : text <<UNIQUE>>  -- buyer, admin, staff
+}
+
+entity permissions {
+  * id : bigint <<PK>>
+  --
+  name : text <<UNIQUE>>  -- product.write, order.read, ...
+}
+
+entity user_roles {
+  * user_id : bigint <<FK users.id>>
+  * role_id : bigint <<FK roles.id>>
+}
+
+entity role_permissions {
+  * role_id : bigint <<FK roles.id>>
+  * permission_id : bigint <<FK permissions.id>>
+}
+
+entity products {
+  * id : bigint <<PK>>
+  --
+  slug : varchar(120) <<UNIQUE>>
+  name : text
+  description : text
+  price_amount : integer   -- minor units
+  price_currency : char(3) -- IDR/USD
+  has_license : boolean
+  created_at : timestamptz
+}
+
+entity orders {
+  * id : bigint <<PK>>
+  --
+  user_id : bigint <<FK users.id>>  -- nullable for guest
+  guest_email : varchar(191)
+  status : varchar(20)  -- pending|paid|fulfilled|refunded
+  total_amount : integer
+  currency : char(3)
+  created_at : timestamptz
+}
+
+entity order_items {
+  * id : bigint <<PK>>
+  --
+  order_id : bigint <<FK orders.id>>
+  product_id : bigint <<FK products.id>>
+  quantity : int
+  unit_price_amount : integer
+  currency : char(3)
+}
+
+entity licenses {
+  * id : bigint <<PK>>
+  --
+  order_id : bigint <<FK orders.id>>
+  product_id : bigint <<FK products.id>>
+  license_key : text <<UNIQUE>>
+  issued_at : timestamptz
+}
+
+entity downloads {
+  * id : bigint <<PK>>
+  --
+  order_id : bigint <<FK orders.id>>
+  product_id : bigint <<FK products.id>>
+  signed_url : text
+  expires_at : timestamptz
+  ip : inet
+  ua : text
+  created_at : timestamptz
+}
+
+entity webhook_events {
+  * id : bigint <<PK>>
+  --
+  provider : varchar(32)
+  event_id : varchar(191)
+  type : varchar(100)
+  payload : jsonb
+  received_at : timestamptz
+  processed_at : timestamptz
+  == constraints ==
+  UNIQUE(provider, event_id)
+}
+
+users ||--o{ orders
+orders ||--|{ order_items
+products ||--o{ order_items
+orders ||--o{ licenses
+products ||--o{ licenses
+orders ||--o{ downloads
+products ||--o{ downloads
+
+users ||--o{ user_roles
+roles ||--o{ user_roles
+roles ||--o{ role_permissions
+permissions ||--o{ role_permissions
+@enduml

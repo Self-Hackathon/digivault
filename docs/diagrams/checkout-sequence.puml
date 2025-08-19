@@ -1,0 +1,35 @@
+@startuml
+title Checkout E2E (browse -> checkout -> pay -> delivery)
+
+actor User
+participant "Web (Next.js)" as FE
+participant "API" as API
+database "DB" as DB
+participant "Payment GW" as PG
+collections "Object Storage" as S3
+
+User -> FE: Browse product
+FE -> API: GET /products
+API -> DB: SELECT products
+API --> FE: 200 ProductList
+
+User -> FE: Checkout (email, items)
+FE -> API: POST /checkout {email, items}
+API -> DB: INSERT order(status=pending)+items
+API -> PG: Create payment session
+PG --> API: {payUrl, sessionId}
+API --> FE: 201 {orderId, payUrl}
+
+User -> PG: Pay on gateway (redirect)
+PG -> API: POST /webhooks/payment (event_id, status=succeeded)
+API -> API: Verify signature + dedup(event_id)
+API -> DB: UPDATE order->paid
+API -> DB: INSERT licenses
+API -> S3: Generate signed URL(s)
+API -> DB: INSERT downloads
+API --> PG: 200 ACK
+
+User -> FE: Return success page
+FE -> API: GET /orders/{id}/delivery
+API --> FE: 200 {links, licenseKeys}
+@enduml
