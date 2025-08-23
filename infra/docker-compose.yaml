@@ -6,10 +6,11 @@ services:
       context: ../apps/api
       dockerfile: Dockerfile
     container_name: dv-app
-    env_file:
-      - ../apps/api/.env
     volumes:
-      - ../apps/api:/var/www/html
+      - ../apps/api:/var/www/html:cached
+      # Named volumes for dependency/storage so they don't sync to the host
+      - laravel_vendor:/var/www/html/vendor
+      - laravel_storage:/var/www/html/storage
     depends_on:
       - db
       - minio
@@ -21,9 +22,10 @@ services:
     ports:
       - "8000:80"
     volumes:
-      - ../apps/api/public:/var/www/html/public
+      - ../apps/api/public:/var/www/html/public:cached
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - ../apps/api:/var/www/html
+      - ../apps/api:/var/www/html:cached
+      - laravel_vendor:/var/www/html/vendor
     depends_on:
       - app
 
@@ -70,3 +72,5 @@ services:
 volumes:
   pgdata:
   minio_data:
+  laravel_vendor:
+  laravel_storage:
