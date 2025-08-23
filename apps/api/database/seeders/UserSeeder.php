@@ -16,7 +16,7 @@ class UserSeeder extends Seeder
         DB::table('users')->updateOrInsert(
             ['email' => 'admin@digivault.dev'],
             [
-                'password'  => Hash::make('password'), // ganti nanti ke env()
+                'password' => Hash::make('password'), // ganti nanti ke env()
                 'is_active' => true,
             ]
         );

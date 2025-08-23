@@ -41,7 +41,7 @@ class Product
     {
         return [
             'price_amount' => 'float',
-            'has_license' => 'boolean'
+            'has_license' => 'boolean',
         ];
     }
 }

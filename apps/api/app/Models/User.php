@@ -20,7 +20,7 @@ class User extends Authenticatable
     protected $fillable = [
         'email',
         'password',
-        'is_active'
+        'is_active',
     ];
 
     /**
@@ -41,7 +41,7 @@ class User extends Authenticatable
     {
         return [
             'password' => 'hashed',
-            'is_active' => 'boolean'
+            'is_active' => 'boolean',
         ];
     }
 }
