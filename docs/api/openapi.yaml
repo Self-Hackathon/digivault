@@ -52,7 +52,7 @@ paths:
                   { "email": "admin@digivault.dev", "password": "password" }
       responses:
         "200":
-          description: Logged in
+          description: Logged in  
           content:
             application/json:
               schema:
