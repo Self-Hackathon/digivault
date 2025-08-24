@@ -1,36 +1,29 @@
-# apps/web/Dockerfile
-
-# 1. Build stage
-FROM node:20-alpine AS builder
-
+# 1. Base image
+FROM node:20-alpine AS base
 WORKDIR /app
 
-# install deps
-COPY package.json package-lock.json ./
+# 2. Install deps (cache this layer)
+COPY package*.json ./
 RUN npm ci
 
-# copy source
+# 3. Build stage
+FROM base AS builder
 COPY . .
-
-# build Next.js
 RUN npm run build
 
-# 2. Runtime stage
+# 4. Runtime stage
 FROM node:20-alpine AS runner
-
 WORKDIR /app
-
 ENV NODE_ENV=production
 ENV PORT=3000
 
-# hanya copy hasil build & deps produksi
-COPY --from=builder /app/package.json /app/package-lock.json ./
+# copy package.json to runtime
+COPY package*.json ./
 RUN npm ci --omit=dev
 
 COPY --from=builder /app/.next .next
 COPY --from=builder /app/public public
-COPY --from=builder /app/next.config.js ./
+COPY --from=builder /app/next.config.ts ./
 
 EXPOSE 3000
-
 CMD ["npm", "start"]
