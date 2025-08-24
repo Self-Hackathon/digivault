@@ -16,12 +16,14 @@ class UserSeeder extends Seeder
         DB::table('users')->updateOrInsert(
             ['email' => 'admin@digivault.dev'],
             [
+                'name' => 'Admin',
                 'password' => Hash::make('password'), // ganti nanti ke env()
                 'is_active' => true,
             ]
         );
 
         $userId = DB::table('users')->where('email', 'admin@digivault.dev')->value('id');
+        
         $roleId = DB::table('roles')->where('name', 'admin')->value('id');
 
         if ($userId && $roleId) {
