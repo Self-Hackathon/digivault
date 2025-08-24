@@ -5,7 +5,7 @@ services:
     build:
       context: ../apps/api
       dockerfile: Dockerfile
-    container_name: dv-app
+    container_name: dv-api
     volumes:
       - ../apps/api:/var/www/html:cached
       # Named volumes for dependency/storage so they don't sync to the host
@@ -40,6 +40,21 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+
+  web:
+    build:
+      context: ../apps/web
+      dockerfile: Dockerfile
+    container_name: dv-web
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      # Base URL untuk fetch dari Next.js (via Nginx)
+      # NEXT_PUBLIC_API_URL: http://nginx/api
+    expose:
+      - "3000"
+    depends_on:
+      - app
 
   adminer:
     image: adminer:4
