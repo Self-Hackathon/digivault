@@ -1,9 +1,8 @@
-# apps/api/Dockerfile
 FROM php:8.3-fpm
 
 # System deps
 RUN apt-get update && apt-get install -y \
-    git unzip libpq-dev libzip-dev libonig-dev libicu-dev \
+    git unzip nano libpq-dev libzip-dev libonig-dev libicu-dev \
     && docker-php-ext-install pdo pdo_pgsql intl zip
 
 # Composer
