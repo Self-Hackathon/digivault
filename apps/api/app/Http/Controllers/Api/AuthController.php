@@ -55,7 +55,9 @@ class AuthController extends Controller
         }
 
         return $this->errorResponse(
-            error: 'Incorrect email or password',
+            error: 'Invalid email or password',
+            data: null,
+            code: 401
         );
     }
 
